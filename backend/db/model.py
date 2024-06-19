@@ -1,6 +1,7 @@
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, DateTime, Double
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
+from db.session import engine
 
 Base = declarative_base()
 
@@ -16,7 +17,6 @@ class WheaterData(Base):
     location_id = Column(Integer, ForeignKey("location.id"))
     location = relationship("Location", back_populates="wheater_data")
 
-
 class Location(Base):
     __tablename__ = "location"
 
@@ -25,3 +25,6 @@ class Location(Base):
     latitude = Column(Double)
     longitude = Column(Double)
     wheater_data = relationship("WheaterData", back_populates="location")
+
+# Create all tables in the database
+Base.metadata.create_all(bind=engine)
