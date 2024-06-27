@@ -1,0 +1,9 @@
+version: '3.1'
+services:
+  frontend:
+    build: ./wheaterapp
+    volumes:
+      - ./wheaterapp/:/usr/app/wheaterapp
+      - ./wheaterapp/node_modules:/usr/app/wheaterapp/node_modules
+    ports:
+      - 8080:8080
