@@ -1,7 +1,7 @@
-from api.model import WheaterDataSchema, LocationSchema
+from api.model import WheaterDataSchema, LocationSchema, UserSchema
 from db.session import session
 from fastapi import HTTPException
-from db.model import WheaterData, Location
+from db.model import WheaterData, Location, User
 
 # WheaterData
 
@@ -95,3 +95,45 @@ async def delete_location(location_id: int):
     session.delete(location_db)
     session.commit()
     return location_id
+
+# User
+
+async def create_user(user: UserSchema):
+    if session.query(User).filter(User.name == user.name).first() is not None:
+        raise HTTPException(status_code=400, detail="User already exists")
+    new_user = User(
+        name=user.name,
+        password=user.password
+    )
+    session.add(new_user)
+    session.commit()
+    session.refresh(new_user)
+    return new_user
+
+async def read_users():
+    users = session.query(User).all()
+    return users
+
+async def read_user(user_id: int):
+    user = session.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+async def update_user(user_id: int, user: UserSchema):
+    user_db = session.query(User).filter(User.id == user_id).first()
+    if user_db is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    user_db.name = user.name
+    user_db.password = user.password
+    session.commit()
+    session.refresh(user_db)
+    return user_db
+
+async def delete_user(user_id: int):
+    user_db = session.query(User).filter(User.id == user_id).first()
+    if user_db is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    session.delete(user_db)
+    session.commit()
+    return user_id

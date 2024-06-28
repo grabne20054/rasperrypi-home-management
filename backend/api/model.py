@@ -19,3 +19,10 @@ class WheaterDataDB(WheaterDataSchema):
 
 class LocationDB(LocationSchema):
     id: int
+
+class UserSchema(BaseModel):
+    name: str
+    password: str
+
+class UserDB(UserSchema):
+    id: int

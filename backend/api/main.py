@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from db.session import metadata, engine
-from api import wheater_data, locations
+from api import wheater_data, locations, users
 
 
 metadata.create_all(engine)
@@ -21,3 +21,4 @@ app.add_middleware(
 # Routers
 app.include_router(wheater_data.router)
 app.include_router(locations.router)
+app.include_router(users.router)

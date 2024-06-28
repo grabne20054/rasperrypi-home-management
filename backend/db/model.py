@@ -26,5 +26,12 @@ class Location(Base):
     longitude = Column(Double)
     wheater_data = relationship("WheaterData", back_populates="location")
 
+class User(Base):
+    __tablename__ = "user"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
+    password = Column(String)
+
 # Create all tables in the database
 Base.metadata.create_all(bind=engine)
