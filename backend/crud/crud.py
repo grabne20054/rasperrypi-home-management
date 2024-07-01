@@ -110,8 +110,15 @@ async def create_user(user: UserSchema):
     session.refresh(new_user)
     return new_user
 
-async def read_users():
-    users = session.query(User).all()
+async def read_users(username, password):
+    if username is not None and password is not None:
+        users = session.query(User).filter(User.name == username, User.password == password).all()
+    elif username is not None:
+        users = session.query(User).filter(User.name == username).all()
+    elif password is not None:
+        users = session.query(User).filter(User.password == password).all()
+    else:
+        users = session.query(User).all()
     return users
 
 async def read_user(user_id: int):

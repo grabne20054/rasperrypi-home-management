@@ -18,8 +18,8 @@ async def create_user(user: UserSchema):
 
 
 @router.get("/users/", status_code=200)
-async def read_users():
-    users = await crud.read_users()
+async def read_users(username: str = None, password: str = None):
+    users = await crud.read_users(username, password)
     return users
 
 
