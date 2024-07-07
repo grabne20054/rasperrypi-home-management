@@ -10,6 +10,7 @@ async def create_wheater_data(wheater_data: WheaterDataSchema):
         temperature=wheater_data.temperature,
         humidity=wheater_data.humidity,
         wind_speed=wheater_data.wind_speed,
+        timestamp=wheater_data.timestamp,
         rain_amount=wheater_data.rain_amount,
         location_id=wheater_data.location_id
     )
