@@ -15,7 +15,6 @@ async def create_wheater_data(wheater_data: WheaterDataSchema):
         "humidity": wheater_data.humidity,
         "wind_speed": wheater_data.wind_speed,
         "rain_amount": wheater_data.rain_amount,
-        "timestamp": wheater_data.timestamp,
         "location_id": wheater_data.location_id
     }
     return response_object
@@ -61,3 +60,8 @@ async def delete_wheater_data(wheater_data_id: int):
     }
 
     return response_object
+
+@router.delete("/wheaterdata/", status_code=204)
+async def delete_all_wheater_data():
+    await crud.delete_all_wheater_data()
+    return None
