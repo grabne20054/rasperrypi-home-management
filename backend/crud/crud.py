@@ -2,6 +2,7 @@ from api.model import WheaterDataSchema, LocationSchema, UserSchema
 from db.session import session
 from fastapi import HTTPException
 from db.model import WheaterData, Location, User
+from datetime import datetime, timedelta
 
 # WheaterData
 
@@ -10,6 +11,7 @@ async def create_wheater_data(wheater_data: WheaterDataSchema):
         temperature=wheater_data.temperature,
         humidity=wheater_data.humidity,
         wind_speed=wheater_data.wind_speed,
+        timestamp=datetime.now() + timedelta(hours=2),
         rain_amount=wheater_data.rain_amount,
         location_id=wheater_data.location_id
     )
@@ -48,6 +50,11 @@ async def delete_wheater_data(wheater_data_id: int):
     if wheater_data_db is None:
         raise HTTPException(status_code=404, detail="WheaterData not found")
     session.delete(wheater_data_db)
+    session.commit()
+    return None
+
+async def delete_all_wheater_data():
+    session.query(WheaterData).delete()
     session.commit()
     return None
 

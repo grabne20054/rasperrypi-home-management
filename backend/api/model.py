@@ -6,7 +6,6 @@ class WheaterDataSchema(BaseModel):
     humidity: float
     wind_speed: float
     rain_amount: float
-    timestamp: datetime
     location_id: int
 
 class LocationSchema(BaseModel):
