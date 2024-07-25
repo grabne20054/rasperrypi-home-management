@@ -26,6 +26,23 @@ async def read_wheater_data():
     wheater_data = session.query(WheaterData).all()
     return wheater_data
 
+async def read_wheater_data_last_seven_days():
+    wheater_data = session.query(WheaterData).filter(WheaterData.timestamp > datetime.now() - timedelta(days=7)).all()
+    return wheater_data
+
+async def read_wheater_data_last_day():
+    wheater_data = session.query(WheaterData).filter(WheaterData.timestamp > datetime.now() - timedelta(days=1)).all()
+    return wheater_data
+
+async def read_wheater_data_location(location_id: int):
+    wheater_data = session.query(WheaterData).filter(WheaterData.location_id == location_id).all()
+    return wheater_data
+
+async def read_wheater_data_location_last_entry(location_id: int):
+    wheater_data = session.query(WheaterData).filter(WheaterData.location_id == location_id).order_by(WheaterData.timestamp.desc()).first()
+    return wheater_data
+
+
 async def read_wheater_data_id(wheater_data_id: int):
     wheater_data = session.query(WheaterData).filter(WheaterData.id == wheater_data_id).first()
     if wheater_data is None:
