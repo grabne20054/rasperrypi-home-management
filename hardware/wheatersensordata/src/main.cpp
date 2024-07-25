@@ -13,7 +13,11 @@
 
 // API URL
 #define APIURLPROD "http://13.60.163.212:8002/wheaterdata"
-#define APIURLDEV "http://192.168.33.29:8002/wheaterdata"
+#define APIURLDEV "http://192.168.33.32:8002/wheaterdata"
+#define API_KEY "ST04SE14CH25MA3104020812"
+
+#define WIFI_SSID "Grabner_2.4GHz_Buero"
+#define WIFI_PASSWORD "erDWue8crs"
 
 PicoMQTT::Client mqtt("broker.hivemq.com");
 
@@ -36,9 +40,9 @@ void setup()
     Serial.begin(115200);
 
     // Connect to WiFi
-    Serial.printf("Connecting to WiFi %s\n", std::getenv("WIFI_SSID"));
+    Serial.printf("Connecting to WiFi %s\n", WIFI_SSID);
     WiFi.mode(WIFI_STA);
-    WiFi.begin(std::getenv("WIFI_SSID"), std::getenv("WIFI_PASSWORD"));
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     while (WiFi.status() != WL_CONNECTED)
     {
         delay(1000);
@@ -71,13 +75,13 @@ void loop()
 
     // Get values from the sensors
     int humidityValue = dht.readHumidity();
-    float temperatureValue = dht.readTemperature();
+    int temperatureValue = ds18b20.getTempC();
 
     if (humidityValue == 2147483647)
     {
         humidityValue = 0;
     }
-    if (temperatureValue == -127 || temperatureValue == 2147483647)
+    if (temperatureValue == -127 || temperatureValue == 2147483647 || temperatureValue == 85)
     {
         temperatureValue = 0;
     }
@@ -94,7 +98,7 @@ void loop()
     if (temperatureValue > 0)
     {
         mqtt.publish("grasensors/temperature", String(temperatureValue));
-        Serial.printf("Temperature: %.2f°C\n", temperatureValue);
+        Serial.printf("Temperature: %.d°C\n", temperatureValue);
     }
     if (humidityValue > 0)
     {
@@ -143,8 +147,9 @@ void sendHttpRequest()
              temperature, humidity);
 
     HTTPClient http;
-    http.begin(APIURLPROD);
+    http.begin(APIURLDEV);
     http.addHeader("Content-Type", "application/json");
+    http.addHeader("token", "ST04SE14CH25MA3104020812"); // does not work yet
     int status = http.POST(postPayload);
     if (status == HTTP_CODE_TEMPORARY_REDIRECT || status == HTTP_CODE_MOVED_PERMANENTLY || status == HTTP_CODE_FOUND)
     {

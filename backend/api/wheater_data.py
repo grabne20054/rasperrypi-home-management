@@ -9,9 +9,7 @@ from api.verification import get_api_key
 router = APIRouter()
 
 @router.post("/wheaterdata/", response_model=WheaterDataDB, status_code=201)
-async def create_wheater_data(wheater_data: WheaterDataSchema, token: Annotated[None | str, Header()]):
-    if token != get_api_key():
-        raise HTTPException(status_code=401, detail="Not authenticated")
+async def create_wheater_data(wheater_data: WheaterDataSchema):
     wheater_data = await crud.create_wheater_data(wheater_data)
     response_object = {
         "id": wheater_data.id,
@@ -24,9 +22,7 @@ async def create_wheater_data(wheater_data: WheaterDataSchema, token: Annotated[
     return response_object
 
 @router.get("/wheaterdata/", status_code=200)
-async def read_wheater_data(token: Annotated[None | str, Header()]):
-    if token != get_api_key():
-        raise HTTPException(status_code=401, detail="Not authenticated")
+async def read_wheater_data():
     wheater_data = await crud.read_wheater_data()
     return wheater_data
 
