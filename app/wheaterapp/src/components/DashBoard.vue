@@ -1,29 +1,23 @@
 <template>
   <div>
-    <h2>Dashboard WheaterData</h2>
-
-    
-    <div v-if="weatherData">
-      <p>Location: {{ weatherData }}</p>
-      <p>Temperature: {{ weatherData.temperature }}°C</p>
-      <p>Humidity: {{ weatherData.humidity }}%</p>
-    </div>
-    
-    <div v-else>
-      <p>Loading weather data...</p>
-    </div>
-    
-    <button @click="logout">Logout</button>
+    <WheaterCard/>
+    <StatisticCard/>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import  WheaterCard  from './WheaterCard.vue';
+import  StatisticCard  from './StatisticCard.vue';
 import { useToast } from 'vue-toast-notification';
 
 const $toast = useToast();
 
 export default {
+  components: {
+    WheaterCard,
+    StatisticCard
+  },
   data() {
     return {
       weatherData: null
@@ -32,7 +26,7 @@ export default {
   methods: {
     async fetchWeatherData() {
       try {
-        const response = await axios.get('http://localhost:8002/wheaterdata');
+        const response = await axios.get('http://13.60.163.212:8002/wheaterdata');
         this.weatherData = response.data;
       } catch (error) {
         console.error('Error fetching weather data:', error);
@@ -42,7 +36,7 @@ export default {
     },
     async fetchLocation(id) {
       try {
-        const response = await axios.get('http://localhost:8002/location/' + id);
+        const response = await axios.get('http://13.60.163.212:8002/location/' + id);
         this.weatherData = response.data;
       } catch (error) {
         console.error('Error fetching location:', error);

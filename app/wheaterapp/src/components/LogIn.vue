@@ -21,7 +21,7 @@
   import {Axios} from 'axios';
 
   const $axios = new Axios({
-    baseURL: 'http://localhost:8002'
+    baseURL: 'http://13.60.163.212/:8002'
   });
 
 
@@ -39,7 +39,7 @@
     methods: {
       async login() {
   try {
-    const res = await $axios.get('http://localhost:8002/users', {
+    const res = await $axios.get('http://13.60.163.212:8002/users', {
       params: {
         username: this.username,
         password: this.password

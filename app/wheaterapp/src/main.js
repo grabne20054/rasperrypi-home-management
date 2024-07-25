@@ -8,5 +8,5 @@ import axios from 'axios';
 const app = createApp(App);
 app.use(router);
 app.use(ToastPlugin);
-app.use(axios);
+app.config.globalProperties.$axios = axios; // Correct way to use axios globally in Vue 3
 app.mount('#app');
