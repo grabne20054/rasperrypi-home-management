@@ -30,8 +30,35 @@ async def create_wheater_data(wheater_data: WheaterDataSchema):
         raise HTTPException(status_code=400, detail="Invalid WheaterData")
 
 async def read_wheater_data():
+    daily_wheater_data = defaultdict(lambda: {'temperature': [], 'humidity': [], 'wind_speed': [], 'rain_amount': []})
+
+
     wheater_data = session.query(WheaterData).all()
-    return wheater_data
+
+    for data in wheater_data:
+        timestamp = data.timestamp.strftime('%Y-%m-%d')
+        daily_wheater_data[timestamp]['temperature'].append(data.temperature)
+        daily_wheater_data[timestamp]['humidity'].append(data.humidity)
+        daily_wheater_data[timestamp]['wind_speed'].append(data.wind_speed)
+        daily_wheater_data[timestamp]['rain_amount'].append(data.rain_amount)
+
+    averages = []
+    for date, data in daily_wheater_data.items():
+        avg_temp = sum(data['temperature']) / len(data['temperature']) if data['temperature'] else 0
+        avg_humidity = sum(data['humidity']) / len(data['humidity']) if data['humidity'] else 0
+        avg_wind_speed = sum(data['wind_speed']) / len(data['wind_speed']) if data['wind_speed'] else 0
+        avg_rain_amount = sum(data['rain_amount']) / len(data['rain_amount']) if data['rain_amount'] else 0
+        
+        averages.append({
+            'timestamp': date,
+            'temperature': avg_temp,
+            'humidity': avg_humidity,
+            'wind_speed': avg_wind_speed,
+            'rain_amount': avg_rain_amount
+        })
+
+    return averages
+
 
 async def read_wheater_data_last_seven_days():
     daily_wheater_data = defaultdict(lambda: {'temperature': [], 'humidity': [], 'wind_speed': [], 'rain_amount': []})
