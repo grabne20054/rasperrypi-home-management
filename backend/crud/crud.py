@@ -3,32 +3,65 @@ from db.session import session
 from fastapi import HTTPException
 from db.model import WheaterData, Location, User
 from datetime import datetime, timedelta
+from preprocessing.ProcessWheaterData import ProcessWheaterData
+from collections import defaultdict
 
 # WheaterData
 
 async def create_wheater_data(wheater_data: WheaterDataSchema):
-    new_wheater_data = WheaterData(
-        temperature=wheater_data.temperature,
-        humidity=wheater_data.humidity,
-        wind_speed=wheater_data.wind_speed,
-        timestamp=datetime.now() + timedelta(hours=2),
-        rain_amount=wheater_data.rain_amount,
-        location_id=wheater_data.location_id
-    )
-    if session.query(Location).filter(Location.id == new_wheater_data.location_id).first() is None:
-        raise HTTPException(status_code=404, detail="Location not found")
-    session.add(new_wheater_data)
-    session.commit()
-    session.refresh(new_wheater_data)
-    return new_wheater_data
+    preprocessed_wheater_data = ProcessWheaterData(wheater_data)
+    if preprocessed_wheater_data.remove_false_values():
+            
+        new_wheater_data = WheaterData(
+            temperature=wheater_data.temperature,
+            humidity=wheater_data.humidity,
+            wind_speed=wheater_data.wind_speed,
+            timestamp=datetime.now() + timedelta(hours=2),
+            rain_amount=wheater_data.rain_amount,
+            location_id=wheater_data.location_id
+        )
+        if session.query(Location).filter(Location.id == new_wheater_data.location_id).first() is None:
+            raise HTTPException(status_code=404, detail="Location not found")
+        session.add(new_wheater_data)
+        session.commit()
+        session.refresh(new_wheater_data)
+        return new_wheater_data
+    else:
+        raise HTTPException(status_code=400, detail="Invalid WheaterData")
 
 async def read_wheater_data():
     wheater_data = session.query(WheaterData).all()
     return wheater_data
 
 async def read_wheater_data_last_seven_days():
+    daily_wheater_data = defaultdict(lambda: {'temperature': [], 'humidity': [], 'wind_speed': [], 'rain_amount': []})
+
+
     wheater_data = session.query(WheaterData).filter(WheaterData.timestamp > datetime.now() - timedelta(days=7)).all()
-    return wheater_data
+
+    for data in wheater_data:
+        timestamp = data.timestamp.strftime('%Y-%m-%d')
+        daily_wheater_data[timestamp]['temperature'].append(data.temperature)
+        daily_wheater_data[timestamp]['humidity'].append(data.humidity)
+        daily_wheater_data[timestamp]['wind_speed'].append(data.wind_speed)
+        daily_wheater_data[timestamp]['rain_amount'].append(data.rain_amount)
+
+    averages = []
+    for date, data in daily_wheater_data.items():
+        avg_temp = sum(data['temperature']) / len(data['temperature']) if data['temperature'] else 0
+        avg_humidity = sum(data['humidity']) / len(data['humidity']) if data['humidity'] else 0
+        avg_wind_speed = sum(data['wind_speed']) / len(data['wind_speed']) if data['wind_speed'] else 0
+        avg_rain_amount = sum(data['rain_amount']) / len(data['rain_amount']) if data['rain_amount'] else 0
+        
+        averages.append({
+            'timestamp': date,
+            'temperature': avg_temp,
+            'humidity': avg_humidity,
+            'wind_speed': avg_wind_speed,
+            'rain_amount': avg_rain_amount
+        })
+
+    return averages
 
 async def read_wheater_data_last_day():
     wheater_data = session.query(WheaterData).filter(WheaterData.timestamp > datetime.now() - timedelta(days=1)).all()
