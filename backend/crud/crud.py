@@ -102,6 +102,9 @@ async def read_wheater_data_location_last_entry(location_id: int):
     wheater_data = session.query(WheaterData).filter(WheaterData.location_id == location_id).order_by(WheaterData.timestamp.desc()).first()
     return wheater_data
 
+async def read_wheater_data_last_entry():
+    wheater_data = session.query(WheaterData).order_by(WheaterData.timestamp.desc()).first()
+    return wheater_data
 
 async def read_wheater_data_id(wheater_data_id: int):
     wheater_data = session.query(WheaterData).filter(WheaterData.id == wheater_data_id).first()

@@ -37,6 +37,12 @@ async def read_wheater_data_last_day():
     wheater_data = await crud.read_wheater_data_last_day()
     return wheater_data
 
+
+@router.get("/wheaterdata/last-entry", status_code=200)
+async def read_wheater_data_last_entry():
+    wheater_data = await crud.read_wheater_data_last_entry()
+    return wheater_data
+
 @router.get("/wheaterdata/location/{location_id}", status_code=200)
 async def read_wheater_data_location(location_id: int):
     wheater_data = await crud.read_wheater_data_location(location_id)
@@ -94,3 +100,5 @@ async def delete_all_wheater_data(token: Annotated[None | str, Header()]):
         raise HTTPException(status_code=401, detail="Not authenticated")
     await crud.delete_all_wheater_data()
     return None
+
+
