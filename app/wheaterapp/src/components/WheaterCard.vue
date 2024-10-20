@@ -1,7 +1,7 @@
 <template>
     <div class="weather-card">
-        <h2>Aktuelles Wetter</h2>
-        <h3>Aktualisierungsintervall: 1h</h3>
+        <h2>Aktuellstes Wetter: {{ location }}</h2>
+        <h3> {{ formattedtime  }}</h3>
         <div class="weather-info temperature">
             <img src="@/assets/thermometer.png" alt="Temperature">
             <span>{{ temperature }}°C</span>
@@ -14,7 +14,7 @@
             <img src="@/assets/rainy.png" alt="Rain amount">
             <span>{{ rain_amount }} mm</span>
         </div>
-        <div class="weather-info">
+        <div class="weather-info ">
             <img src="@/assets/windy.png" alt="Wind speed">
             <span>{{ wind_speed }} km/h</span>
         </div>
@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import { getLastWheaterData, getLocation }from  './wheaterConfigs.js';
 export default {
     data() {
         return {
@@ -29,14 +30,38 @@ export default {
             humidity: null,
             rain_amount: null,
             wind_speed: null,
+            location: null,
+            timestamp: null,
+            formattedtime: null
         };
     },
-    mounted() {
-        this.temperature = 25;
-        this.humidity = 70;
-        this.rain_amount = 5;
-        this.wind_speed = 10;
+    async mounted() {
+        this.temperature = (await getLastWheaterData()).data.temperature;
+        this.humidity = (await getLastWheaterData()).data.humidity;
+        this.rain_amount = (await getLastWheaterData()).data.rain_amount;
+        this.wind_speed = (await getLastWheaterData()).data.wind_speed;
+        this.location = (await getLocation((await getLastWheaterData()).data.location_id)).data.name;
+        this.timestamp = (await getLastWheaterData()).data.timestamp;
+        this.formattedtime = this.formatTimestamp(this.timestamp);
     },
+
+    methods: {
+        formatTimestamp(timestamp) {
+            // Split the timestamp at 'T'
+            const [datePart, timePart] = timestamp.split('T');
+            
+            // Get the date in dd.MM.yyyy format
+            const [year, month, day] = datePart.split('-');
+            const formattedDate = `${day}.${month}.${year}`;
+            
+            // Get the time in HH:mm format
+            const [hour, minute] = timePart.split(':');
+            const formattedTime = `${hour}:${minute}`;
+            
+            return `${formattedDate} ${formattedTime}`; // Combine date and time
+        }
+
+    }
 };
 </script>
 
@@ -49,7 +74,6 @@ export default {
     padding: 20px;
     max-width: 400px; /* Larger card width */
     margin: auto;
-    text-align: left;
 }
 
 .weather-card h2 {
@@ -66,10 +90,9 @@ export default {
 }
 
 .weather-info {
-    display: flex;
-    align-items: center;
     margin-bottom: 15px;
     font-size: 25px; /* Slightly larger font size */
+    align-content: center;
 }
 
 .temperature {
@@ -77,6 +100,24 @@ export default {
     justify-content: center;
     align-items: center;
     font-size: 40px; /* Larger font size for temperature */
+    color: #fff;
+    margin-bottom: 25px; /* More space below temperature info */
+}
+
+.humidity {
+    display: flex;
+    justify-content: left;
+    align-items: left;
+    font-size: 35px; /* Larger font size for temperature */
+    color: #fff;
+    margin-bottom: 25px; /* More space below temperature info */
+}
+
+.wind-speed{
+    display: flex;
+    justify-content: right;
+    align-items: right;
+    font-size: 35px; /* Larger font size for temperature */
     color: #fff;
     margin-bottom: 25px; /* More space below temperature info */
 }
@@ -90,5 +131,11 @@ export default {
 
 .weather-info span {
     color: #000000; /* Matching blue for the text */
+}
+
+@media (max-width: 768px) {
+    .weather-card {
+        max-width: 100%; /* Full width on smaller screens */
+    }
 }
 </style>
